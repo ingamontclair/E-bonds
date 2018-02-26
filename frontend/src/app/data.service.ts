@@ -11,7 +11,7 @@ export class DataService {
   constructor(private _http: Http) { }
 
   getUsers() {
-    return this._http.get("/api/users")
+    return this._http.get("/api/users/test")
       .map(result => this.result = result.json().data);
   }
 
