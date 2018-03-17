@@ -100,6 +100,8 @@ public class Users {
     return Response.status(200).build();
   }
 
+
+
   @Path("test")
   @GET
   @Produces(MediaType.APPLICATION_JSON)
@@ -113,13 +115,29 @@ public class Users {
   }
 
   @POST
-  @Path("/register")
-  @Consumes(MediaType.APPLICATION_JSON)
+  @Path("register")
+  //@Consumes(MediaType.APPLICATION_JSON)
   public Response registerUser(User user) {
     String sql = "INSERT INTO users (first_name, last_name, e_mail, pass, registration_day, user_role)\n" +
       "   VALUES (?,?,?,?,to_date(?,'MM-DD-YYYY'),?)";
-    db.update(sql,new Object[]{user.getFirstName(),user.getLastName(),user.geteMail(),user.getPass(),user.getRegistrationDay(),user.getUserRole()});
-    String result = "Product created : " + user;
+    db.update(sql,user.getFirstName(),user.getLastName(),user.geteMail(),user.getPass(),user.getRegistrationDay(),user.getUserRole());
+    String result = "User created : " + user;
+    return Response.status(200).entity(result).build();
+
+  }
+
+  @POST
+  @Path("update")
+  //@Consumes(MediaType.APPLICATION_JSON)
+  public Response updateUser(User user) {
+    String sql = "update USERS set\n" +
+      "FIRST_NAME = ?\n" +
+      ",LAST_NAME = ?\n" +
+      ",E_MAIL = ?\n" +
+      ",PASS = ?\n" +
+      "where ID = ?";
+    db.update(sql, user.getFirstName(),user.getLastName(),user.geteMail(),user.getPass(),user.getId());
+    String result = "User updated : " + user;
     return Response.status(200).entity(result).build();
 
   }
