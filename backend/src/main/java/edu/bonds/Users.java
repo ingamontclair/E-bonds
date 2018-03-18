@@ -43,49 +43,26 @@ public class Users {
 
   @Path("{e_mail}/{pass}")
   @GET
-  @Produces(MediaType.TEXT_PLAIN)
-  public String loginUser(@PathParam("e_mail") String e_mail, @PathParam("pass") String pass) throws Exception{
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response loginUser(@PathParam("e_mail") String e_mail, @PathParam("pass") String pass) throws Exception{
     Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521/orcl", "bond", "1234");
     String sql = "SELECT\n" +
       "    id,\n" +
-      "    first_name,\n" +
-      "    last_name,\n" +
-      "    e_mail,\n" +
+      "    first_name as firstName,\n" +
+      "    last_name as lastName,\n" +
+      "    e_mail as eMail,\n" +
       "    pass,\n" +
       "    TO_CHAR(registration_day,'MM-DD-YYYY') AS registration_day,\n" +
-      "    user_role,\n" +
+      "    user_role as userRole,\n" +
       "    approval\n" +
       "FROM\n" +
       "    users\n" +
       "WHERE\n" +
       "    e_mail = '"+ e_mail +"'\n" +
       "    AND   pass = '"+ pass +"'";
+    List <User> result = db.query(sql,new BeanPropertyRowMapper<User>(User.class));
+    return Response.status(200).entity(new Data(result)).build();
 
-    ResultSet rs = c.createStatement().executeQuery(sql);
-    StringBuilder data = new StringBuilder();
-    String result="";
-    Boolean isFirst=true;
-    while (rs.next()) {
-      if (isFirst) {
-        isFirst = false;
-      }
-      else {
-        data.append(",");
-      }
-      data.append("{");
-      data.append("id:"+rs.getString("ID")+",");
-      data.append("first_name:\""+rs.getString("FIRST_NAME")+"\",");
-      data.append("last_name:\""+rs.getString("LAST_NAME")+"\",");
-      data.append("e_mail:\""+rs.getString("E_MAIL")+"\",");
-      data.append("registration_day:\""+rs.getString("REGISTRATION_DAY")+"\",");
-      data.append("user_role:\""+rs.getString("USER_ROLE")+"\",");
-      data.append("approval:\""+rs.getString("APPROVAL")+"\"");
-      data.append("}");
-    }
-    c.close();
-    result = "{\"status\":200,\"data\":[" + data.toString() + "]}";
-    System.out.println("result = " + result);
-    return result;
   }
 
   @Path("delete/{id}")
