@@ -6,6 +6,7 @@ import 'rxjs/add/operator/map';
 import { of } from 'rxjs/observable/of';
 import { catchError, map, tap } from 'rxjs/operators';
 import { User } from './model/user';
+import { Position } from './model/position';
 @Injectable()
 export class DataService {
 
@@ -25,8 +26,13 @@ export class DataService {
     );
   }
   loginUser(user: User){
-      return this._http.get("/api/users/"+user.eMail+"/"+user.pass)
-       .map(result => this.result = result.json().data);
-              //return result;
+         return this._http.get("/api/users/"+user.eMail+"/"+user.pass)
+          .map(result => this.result = result.json().data);
+                 //return result;
+   }
+  getPortfolio(){
+           return this._http.get("/api/bonds/positions/1")
+            .map(result => this.result = result.json().data);
+                   //return result;
   }
 }

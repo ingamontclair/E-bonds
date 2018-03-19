@@ -10,13 +10,17 @@ import { LoginComponent } from './login/login.component';
 import { AppRoutingModule } from './app-routing.module';
 import { RegisterComponent } from './register/register.component';
 import { PortfolioComponent } from './portfolio/portfolio.component';
+import { HeaderComponent } from './header/header.component';
+import { FooterComponent } from './footer/footer.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     RegisterComponent,
-    PortfolioComponent
+    PortfolioComponent,
+    HeaderComponent,
+    FooterComponent
   ],
   imports: [
     BrowserModule,
@@ -25,7 +29,7 @@ import { PortfolioComponent } from './portfolio/portfolio.component';
     AppRoutingModule,
     FormsModule
   ],
-  providers: [DataService],
+  providers: [DataService, HeaderComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

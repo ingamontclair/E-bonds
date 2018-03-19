@@ -1,13 +1,21 @@
 package edu.bonds;
+import edu.bonds.model.Data;
+import edu.bonds.model.Position;
+import edu.bonds.model.User;
+import javafx.geometry.Pos;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.util.List;
 
 @Path("bonds")
 public class Bonds {
@@ -76,6 +84,27 @@ public class Bonds {
     result = "{\"status\":200,\"data\":[" + data.toString() + "]}";
     System.out.println("result = " + result);
     return result;
+  }
+
+  @Path("positions/{account_id}")
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getPositions(@PathParam("account_id") Integer account_id) throws Exception {
+    //Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521/orcl", "bond", "1234");
+    String sql = "select b.id as bondId, nvl (b.isin, b.cusip) as symbol, b.currency, p.price, sum(t.quantity*\n" +
+      "case when t.direction = 'sell' then -1\n" +
+      "else 1\n" +
+      "end\n" +
+      ") as quantity\n" +
+      "from  trades t\n" +
+      "join bonds b on t.bond_id = b.id\n" +
+      "join prices p on p.bond_id = b.id\n" +
+      "\n" +
+      "where t.account_id = ? \n" +
+      "and p.price_date = (select max (price_date) from prices p2 where p2.bond_id = b.id)\n" +
+      "group by b.id, nvl (b.isin, b.cusip), b.currency, p.price";
+    List<Position> result = db.query(sql, new BeanPropertyRowMapper<Position>(Position.class), account_id);
+    return Response.status(200).entity(new Data(result)).build();
   }
 }
 
