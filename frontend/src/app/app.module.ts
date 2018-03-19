@@ -12,6 +12,7 @@ import { RegisterComponent } from './register/register.component';
 import { PortfolioComponent } from './portfolio/portfolio.component';
 import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
+import { BondinfoComponent } from './bondinfo/bondinfo.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { FooterComponent } from './footer/footer.component';
     RegisterComponent,
     PortfolioComponent,
     HeaderComponent,
-    FooterComponent
+    FooterComponent,
+    BondinfoComponent
   ],
   imports: [
     BrowserModule,

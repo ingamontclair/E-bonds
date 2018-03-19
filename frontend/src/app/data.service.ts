@@ -7,6 +7,7 @@ import { of } from 'rxjs/observable/of';
 import { catchError, map, tap } from 'rxjs/operators';
 import { User } from './model/user';
 import { Position } from './model/position';
+import { Bond } from './model/bond';
 @Injectable()
 export class DataService {
 
@@ -35,4 +36,10 @@ export class DataService {
             .map(result => this.result = result.json().data);
                    //return result;
   }
+
+    getBondInfo(bondId: number){
+             return this._http.get("/api/bonds/"+bondId)
+              .map(result => this.result = result.json().data);
+                     //return result;
+    }
 }

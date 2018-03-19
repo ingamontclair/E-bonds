@@ -22,7 +22,7 @@ positions: Position[];
     .subscribe(p => {
        this.positions = p;
       });
-    console.log('position');;
+    console.log('position');
   }
 
 /*  export positions: Position[] = [

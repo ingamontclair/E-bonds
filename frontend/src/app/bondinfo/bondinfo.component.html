@@ -1,0 +1,81 @@
+<div>
+  <table class = "table table-striped table-bordered">
+
+    <thead>
+    <tr>
+      <th>BOND DATA</th>
+      <th>DATA</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr *ngFor="let bond of bonds">
+      <td>ISIN</td>
+      <td> {{ bond.symbol }} </td>
+
+    </tr>
+    <tr *ngFor="let bond of bonds">
+      <td>CUSIP</td>
+      <td> {{ bond.symbol }} </td>
+    </tr>
+    <tr *ngFor="let bond of bonds">
+      <td>BOND_NAME</td>
+      <td> {{ bond.bondName }} </td>
+    </tr>
+    <tr *ngFor="let bond of bonds">
+      <td>COUNTRY</td>
+      <td> {{ bond.country }} </td>
+    </tr>
+    <tr *ngFor="let bond of bonds">
+      <td>ISSUER</td>
+      <td> {{ bond.issuer }} </td>
+    </tr>
+    <tr *ngFor="let bond of bonds">
+      <td>ISSUE_VOLUME</td>
+      <td> {{ bond.issueVolume }} </td>
+    </tr>
+    <tr *ngFor="let bond of bonds">
+      <td>CURRENCY</td>
+      <td> {{ bond.currency }} </td>
+    </tr>
+    <tr *ngFor="let bond of bonds">
+      <td>ISSUE_PRICE</td>
+      <td> {{ bond.issuePrice }} </td>
+    </tr>
+    <tr *ngFor="let bond of bonds">
+      <td>ISSUE_DATE</td>
+      <td> {{ bond.issueDate }} </td>
+    </tr>
+    <tr *ngFor="let bond of bonds">
+      <td>COUPON</td>
+      <td> {{ bond.coupon }} </td>
+    </tr>
+    <tr *ngFor="let bond of bonds">
+      <td>MATURITY_DATE</td>
+      <td> {{ bond.maturityDate }} </td>
+    </tr>
+    <tr *ngFor="let bond of bonds">
+      <td>COUPON_START_DATE</td>
+      <td> {{ bond.couponStartDate }} </td>
+    </tr>
+    <tr *ngFor="let bond of bonds">
+      <td>COUPON_PAYMENT_DATE</td>
+      <td> {{ bond.couponPaymentDate }} </td>
+    </tr>
+    <tr *ngFor="let bond of bonds">
+      <td>SPECIAL_COUPON_TYPE</td>
+      <td> {{ bond.specialCouponType }} </td>
+    </tr>
+    <tr *ngFor="let bond of bonds">
+      <td>PAYMENTS_PER_YEAR</td>
+      <td> {{ bond.paymentsPerYear }} </td>
+    </tr>
+    <tr *ngFor="let bond of bonds">
+      <td>SUB_PRODUCT_TYPE</td>
+      <td> {{ bond.subProductType }} </td>
+    </tr>
+
+    </tbody>
+
+  </table>
+</div>

@@ -3,4 +3,5 @@ export class Position {
   price: string;
   currency: string;
   quantity: number;
+  bondId: number;
 }

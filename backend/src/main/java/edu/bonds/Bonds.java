@@ -1,4 +1,5 @@
 package edu.bonds;
+import edu.bonds.model.Bond;
 import edu.bonds.model.Data;
 import edu.bonds.model.Position;
 import edu.bonds.model.User;
@@ -24,6 +25,7 @@ public class Bonds {
   public Bonds(JdbcTemplate db) {
     this.db = db;
   }
+
 
   @GET
   @Produces(MediaType.TEXT_PLAIN)
@@ -104,6 +106,36 @@ public class Bonds {
       "and p.price_date = (select max (price_date) from prices p2 where p2.bond_id = b.id)\n" +
       "group by b.id, nvl (b.isin, b.cusip), b.currency, p.price";
     List<Position> result = db.query(sql, new BeanPropertyRowMapper<Position>(Position.class), account_id);
+    return Response.status(200).entity(new Data(result)).build();
+  }
+
+  @Path("{id}")
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getBondInfo(@PathParam("id") Integer id) throws Exception {
+    //Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521/orcl", "bond", "1234");
+    String sql = "SELECT\n" +
+      "    id,\n" +
+      "    nvl(isin,cusip) AS symbol,\n" +
+      "    bond_name,\n" +
+      "    country,\n" +
+      "    issuer,\n" +
+      "    issue_volume,\n" +
+      "    currency,\n" +
+      "    issue_price,\n" +
+      "    TO_CHAR(issue_date,'MM-DD-YYYY') AS issue_date,\n" +
+      "    coupon,\n" +
+      "    TO_CHAR(maturity_date,'MM-DD-YYYY') AS maturity_date,\n" +
+      "    TO_CHAR(coupon_start_date,'MM-DD-YYYY') AS coupon_start_date,\n" +
+      "    TO_CHAR(coupon_payment_date,'MM-DD-YYYY') AS coupon_payment_date,\n" +
+      "    special_coupon_type,\n" +
+      "    payments_per_year,\n" +
+      "    sub_product_type\n" +
+      "FROM\n" +
+      "    bonds\n" +
+      "WHERE\n" +
+      "    id = ?";
+    List<Bond> result = db.query(sql, new BeanPropertyRowMapper<Bond>(Bond.class), id);
     return Response.status(200).entity(new Data(result)).build();
   }
 }

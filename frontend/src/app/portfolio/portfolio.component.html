@@ -24,7 +24,7 @@
 
     <tbody>
     <tr *ngFor="let position of positions">
-      <td><a href> {{ position.symbol }} </a></td>
+      <td><a href [routerLink]="['/bondinfo', position.bondId]"> {{ position.symbol }} </a></td>
       <td> {{ position.price }} </td>
       <td> {{ position.currency }} </td>
       <td> {{ position.quantity }} </td>
