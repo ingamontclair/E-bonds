@@ -1,5 +1,5 @@
 <div class="page-header" class="p-3 mb-2 bg-info text-white">
   <h2>E-Bonds <small>Subtext for header</small></h2>
-  <p *ngIf="user">Welcome, {{ user.firstName }} !</p>
-  <a *ngIf="user" href="" (click)="logout()">Logout</a>
+  <p *ngIf="currentUser">Welcome, {{ currentUser.firstName }} !</p>
+  <a *ngIf="currentUser" href="" (click)="logout()">Logout</a>
 </div>

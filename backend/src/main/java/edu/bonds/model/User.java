@@ -11,6 +11,15 @@ public class User {
   String registrationDay;
   String userRole;
   String approval;
+  Integer accountId;
+
+  public Integer getAccountId() {
+    return accountId;
+  }
+
+  public void setAccountId(Integer accountId) {
+    this.accountId = accountId;
+  }
 
   public int getId() {
     return id;

@@ -9,12 +9,18 @@ import { User } from './model/user';
 import { Position } from './model/position';
 import { Bond } from './model/bond';
 import { TradeOrder } from './model/tradeOrder';
+import { AuthenticationService } from './authentication.service';
+
 @Injectable()
 export class DataService {
+accountId: number;
+user: User;
+  result: Response;
 
-  result:Response;
-
-  constructor(private _http: Http) { }
+  constructor(
+    private _http: Http,
+    private authService: AuthenticationService
+  ) { }
 
   getUsers() {
     return this._http.get("/api/users")
@@ -29,11 +35,18 @@ export class DataService {
   }
   loginUser(user: User){
          return this._http.get("/api/users/"+user.eMail+"/"+user.pass)
-          .map(result => this.result = result.json().data);
+          .map(result =>
+            this.result = result.json().data);
                  //return result;
    }
-  getPortfolio(){
-           return this._http.get("/api/bonds/positions/1")
+  
+  
+  
+  
+   getPortfolio(){
+          this.user = this.authService.currentUser();
+          this.accountId = this.user.accountId;
+           return this._http.get("/api/bonds/positions/"+ this.accountId)
             .map(result => this.result = result.json().data);
                    //return result;
   }
@@ -51,18 +64,20 @@ export class DataService {
   }
 
   getBondById(bondId: number){
-             return this._http.get("/api/bonds/positions/1/"+bondId)
+             return this._http.get("/api/bonds/positions/"+ this.authService.currentUser().accountId + "/"+bondId)
               .map(result => this.result = result.json().data);
                        //return result;
   }
 
   sellBond(tradeOrder: TradeOrder){
+    tradeOrder.accountId = this.authService.currentUser().accountId;  
       return this._http.post("/api/bonds/sellbonds", tradeOrder).pipe(
         //tap((user: User) => this.log(`added user w/ id=${user.id}`)),
         //catchError(this.handleError<User>('registerUser'))
       );
   }
   buyBond(tradeOrder: TradeOrder){
+      tradeOrder.accountId = this.authService.currentUser().accountId;  
         return this._http.post("/api/bonds/buybonds", tradeOrder).pipe(
           //tap((user: User) => this.log(`added user w/ id=${user.id}`)),
           //catchError(this.handleError<User>('registerUser'))
@@ -70,7 +85,7 @@ export class DataService {
   }
 
   getBalance(accountId: number){
-       return this._http.get("/api/bonds/balance/1/")
+       return this._http.get("/api/bonds/balance/" + this.authService.currentUser().accountId)
            .map(result => this.result = result.json());
                          //return result;
   }

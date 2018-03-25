@@ -16,6 +16,8 @@ import { BondinfoComponent } from './bondinfo/bondinfo.component';
 import { SellbondComponent } from './sellbond/sellbond.component';
 import { AllbondsComponent } from './allbonds/allbonds.component';
 import { BuybondComponent } from './buybond/buybond.component';
+import { AuthenticationService } from './authentication.service';
+import { AuthGuard } from './auth.guard';
 
 @NgModule({
   declarations: [
@@ -37,7 +39,7 @@ import { BuybondComponent } from './buybond/buybond.component';
     AppRoutingModule,
     FormsModule
   ],
-  providers: [DataService, HeaderComponent],
+  providers: [DataService, HeaderComponent, AuthenticationService, AuthGuard],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

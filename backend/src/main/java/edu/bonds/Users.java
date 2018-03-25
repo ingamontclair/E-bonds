@@ -47,16 +47,18 @@ public class Users {
   public Response loginUser(@PathParam("e_mail") String e_mail, @PathParam("pass") String pass) throws Exception{
     Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521/orcl", "bond", "1234");
     String sql = "SELECT\n" +
-      "    id,\n" +
-      "    first_name as firstName,\n" +
-      "    last_name as lastName,\n" +
-      "    e_mail as eMail,\n" +
-      "    pass,\n" +
+      "    u.id,\n" +
+      "    u.first_name as firstName,\n" +
+      "    u.last_name as lastName,\n" +
+      "    u.e_mail as eMail,\n" +
+      "    u.pass,\n" +
       "    TO_CHAR(registration_day,'MM-DD-YYYY') AS registration_day,\n" +
-      "    user_role as userRole,\n" +
-      "    approval\n" +
+      "    u.user_role as userRole,\n" +
+      "    u.approval,\n" +
+      "    a.ID as accountId \n"+
       "FROM\n" +
-      "    users\n" +
+      "    users u\n" +
+      "left join ACCOUNTS a on u.id = a.USER_ID\n" +
       "WHERE\n" +
       "    e_mail = '"+ e_mail +"'\n" +
       "    AND   pass = '"+ pass +"'";

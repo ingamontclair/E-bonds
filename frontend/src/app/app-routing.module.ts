@@ -8,17 +8,20 @@ import { BondinfoComponent }   from './bondinfo/bondinfo.component';
 import { SellbondComponent }   from './sellbond/sellbond.component';
 import { AllbondsComponent } from './allbonds/allbonds.component';
 import { BuybondComponent } from './buybond/buybond.component';
+import { AuthGuard } from './auth.guard';
 
 const routes: Routes = [
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: '', redirectTo: '/portfolio', canActivate: [AuthGuard], pathMatch: 'full',},
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'portfolio', component: PortfolioComponent },
-  { path: 'bondinfo', component: BondinfoComponent },
-  { path: 'bondinfo/:id', component: BondinfoComponent },
-  { path: 'sellbond/:id', component: SellbondComponent },
-  { path: 'allbonds', component: AllbondsComponent },
-  { path: 'buybond/:id', component: BuybondComponent }
+  { path: 'portfolio', component: PortfolioComponent, canActivate: [AuthGuard] },
+  { path: 'bondinfo', component: BondinfoComponent, canActivate: [AuthGuard] },
+  { path: 'bondinfo/:id', component: BondinfoComponent, canActivate: [AuthGuard] },
+  { path: 'sellbond/:id', component: SellbondComponent, canActivate: [AuthGuard] },
+  { path: 'allbonds', component: AllbondsComponent, canActivate: [AuthGuard] },
+  { path: 'buybond/:id', component: BuybondComponent, canActivate: [AuthGuard] },
+  { path: '**', redirectTo: '' }
+
 ];
 
 @NgModule({
