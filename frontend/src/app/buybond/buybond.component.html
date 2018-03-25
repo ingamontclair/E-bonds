@@ -1,0 +1,44 @@
+<div>
+  <table class = "table table-striped table-bordered">
+
+    <thead>
+    <tr>
+      <th>BOND DATA</th>
+      <th>DATA</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr *ngFor="let position of positions">
+      <td>ISIN</td>
+      <td> {{ position.symbol }} </td>
+    </tr>
+    <tr *ngFor="let position of positions">
+      <td>CUSIP</td>
+      <td> {{ position.symbol }} </td>
+    </tr>
+    <tr *ngFor="let position of positions">
+      <td>BOND_NAME</td>
+      <td> bond.bondName  </td>
+    </tr>
+    <tr *ngFor="let position of positions">
+      <td>CURRENT PRICE</td>
+      <td> {{ position.price }} </td>
+    </tr>
+
+    <tr>
+      <td>QUANTITY TO BUY</td>
+      <td><input type="text" [(ngModel)]="tradeOrder.quantity"></td>
+    </tr>
+    <tr>
+      <td><div class="form-group">
+        <button class="btn btn-primary" (click)="buyBond()">Buy Bonds</button>
+        <a [routerLink]="['/allbonds']" class="btn btn-link">Cancel</a>
+      </div></td>
+      <td></td>
+    </tr>
+    </tbody>
+
+  </table>
+</div>
+

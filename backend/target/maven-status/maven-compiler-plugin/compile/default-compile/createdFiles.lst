@@ -1,3 +1,8 @@
+edu/bonds/model/Trade.class
+edu/bonds/model/Cash.class
+edu/bonds/model/User.class
+edu/bonds/model/Bond.class
+edu/bonds/model/Position.class
+edu/bonds/model/TradeOrder.class
 edu/bonds/Bonds.class
 edu/bonds/model/Data.class
-edu/bonds/model/User.class

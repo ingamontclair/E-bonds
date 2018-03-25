@@ -1,16 +1,10 @@
 package edu.bonds;
-import edu.bonds.model.Bond;
-import edu.bonds.model.Data;
-import edu.bonds.model.Position;
-import edu.bonds.model.User;
+import edu.bonds.model.*;
 import javafx.geometry.Pos;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.Connection;
@@ -109,6 +103,38 @@ public class Bonds {
     return Response.status(200).entity(new Data(result)).build();
   }
 
+  @Path("positions")
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getAllBonds() throws Exception {
+    //Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521/orcl", "bond", "1234");
+    String sql = "select b.id as bondId, nvl (b.isin, b.cusip) as symbol, b.currency, p.price, sum(t.quantity*\n" +
+      "case when t.direction = 'sell' then -1\n" +
+      "else 1\n" +
+      "end\n" +
+      ") as quantity\n" +
+      "from  trades t\n" +
+      "join bonds b on t.bond_id = b.id\n" +
+      "join prices p on p.bond_id = b.id\n" +
+      "\n" +
+      "where  \n" +
+      "p.price_date = (select max (price_date) from prices p2 where p2.bond_id = b.id)\n" +
+      "group by b.id, nvl (b.isin, b.cusip), b.currency, p.price";
+    List<Position> result = db.query(sql, new BeanPropertyRowMapper<Position>(Position.class));
+    return Response.status(200).entity(new Data(result)).build();
+  }
+
+  @Path("positions/{account_id}/{b_id}")
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getBondById(@PathParam("account_id") Integer account_id, @PathParam("b_id") Integer b_id) throws Exception {
+    //Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521/orcl", "bond", "1234");
+    System.out.println("account_id = " + account_id);
+
+    List<Position> result = getPositions(account_id, b_id);
+    return Response.status(200).entity(new Data(result)).build();
+  }
+
   @Path("{id}")
   @GET
   @Produces(MediaType.APPLICATION_JSON)
@@ -137,6 +163,103 @@ public class Bonds {
       "    id = ?";
     List<Bond> result = db.query(sql, new BeanPropertyRowMapper<Bond>(Bond.class), id);
     return Response.status(200).entity(new Data(result)).build();
+  }
+
+  @POST
+  @Path("sellbonds")
+  //@Consumes(MediaType.APPLICATION_JSON)
+  public Response sellBond(TradeOrder tradeOrder) {
+
+/*    String sql = "INSERT INTO users (first_name, last_name, e_mail, pass, registration_day, user_role)\n" +
+      "   VALUES (?,?,?,?,to_date(?,'MM-DD-YYYY'),?)";*/
+    //db.update(sql,user.getFirstName(),user.getLastName(),user.geteMail(),user.getPass(),user.getRegistrationDay(),user.getUserRole());
+
+    List<Position> tmp = getPositions(tradeOrder.getAccountId(), tradeOrder.getBondId());
+
+    if ( tmp.isEmpty()){
+      throw new RuntimeException("No positions returned");
+    }
+    Position position = tmp.get(0);
+    //check quantity
+    if (tradeOrder.getQuantity() > Integer.parseInt(position.getQuantity())){
+      throw new RuntimeException("Not enough bonds available");
+    }
+    //check the price
+    if (tradeOrder.getBidPrice() < Double.parseDouble(position.getPrice())){
+      String message = "Bond can't be sold at this price now, saving a back order";
+      System.out.println(message);
+      return Response.status(200).entity(message).build();
+    }
+    double amount = Double.parseDouble(position.getPrice()) * tradeOrder.getQuantity();
+    //insert into trades
+    String sqlTrade = "insert into TRADES(\n" +
+      "BOND_ID\n" +
+      ",ACCOUNT_ID\n" +
+      ",AMOUNT\n" +
+      ",QUANTITY\n" +
+      ",DIRECTION\n" +
+      ",BOND_PRICE\n" +
+      ",TRADE_DATE\n" +
+      ") values (\n" +
+      "?\n" +
+      ",?\n" +
+      ",?\n" +
+      ",?\n" +
+      ",'sell'\n" +
+      ",?\n" +
+      ",sysdate\n" +
+      ")";
+    db.update(sqlTrade,tradeOrder.getBondId(),tradeOrder.getAccountId(), amount, tradeOrder.getQuantity(), position.getPrice());
+    //insert into cash_movements
+
+    String sql = "insert into CASH_MOVEMENTS(\n" +
+      "CURRENCY\n" +
+      ",ACCOUNT_ID\n" +
+      ",AMOUNT\n" +
+      ",COMMENTS\n" +
+      ",CASH_MOVE_DATE\n" +
+      ") values (\n" +
+      "'USD'\n" +
+      ",?\n" +
+      ",?\n" +
+      ",'Bond "+position.getSymbol()+" Sold'\n" +
+      ",sysdate\n" +
+      ")";
+    //String result = "Order created : " + tradeOrder;
+    //System.out.println("result = " + result);
+    db.update(sql,tradeOrder.getAccountId(), amount);
+    String msg = "Sold";
+    return Response.status(200).entity(msg).build();
+  }
+
+  @Path("balance/{account_id}")
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getBalance(@PathParam("account_id") Integer account_id) throws Exception {
+    //Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521/orcl", "bond", "1234");
+    String sql = "select sum(amount) from cash_movements where account_id = ?";
+    Double result = db.queryForObject(sql, Double.class, account_id);
+    return Response.status(200).entity(result).build();
+  }
+  //-----------------------------------------
+  // DataBase queries
+  //-----------------------------------------
+
+  private List<Position> getPositions(int accountId, int bondId){
+    String sql = "select b.id as bondId, nvl (b.isin, b.cusip) as symbol, b.currency, p.price, sum(t.quantity*\n" +
+      "case when t.direction = 'sell' then -1\n" +
+      "else 1\n" +
+      "end\n" +
+      ") as quantity\n" +
+      "from  trades t\n" +
+      "join bonds b on t.bond_id = b.id\n" +
+      "join prices p on p.bond_id = b.id\n" +
+      "\n" +
+      "where t.account_id = ? and b.id = ?\n" +
+      "and p.price_date = (select max (price_date) from prices p2 where p2.bond_id = b.id)\n" +
+      "group by b.id, nvl (b.isin, b.cusip), b.currency, p.price";
+    List<Position> result = db.query(sql, new BeanPropertyRowMapper<Position>(Position.class), accountId, bondId);
+    return result;
   }
 }
 

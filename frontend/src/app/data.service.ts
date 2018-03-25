@@ -8,6 +8,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 import { User } from './model/user';
 import { Position } from './model/position';
 import { Bond } from './model/bond';
+import { TradeOrder } from './model/tradeOrder';
 @Injectable()
 export class DataService {
 
@@ -37,9 +38,40 @@ export class DataService {
                    //return result;
   }
 
-    getBondInfo(bondId: number){
+  getAllBonds(){
+             return this._http.get("/api/bonds/positions")
+              .map(result => this.result = result.json().data);
+                     //return result;
+  }
+
+  getBondInfo(bondId: number){
              return this._http.get("/api/bonds/"+bondId)
               .map(result => this.result = result.json().data);
                      //return result;
-    }
+  }
+
+  getBondById(bondId: number){
+             return this._http.get("/api/bonds/positions/1/"+bondId)
+              .map(result => this.result = result.json().data);
+                       //return result;
+  }
+
+  sellBond(tradeOrder: TradeOrder){
+      return this._http.post("/api/bonds/sellbonds", tradeOrder).pipe(
+        //tap((user: User) => this.log(`added user w/ id=${user.id}`)),
+        //catchError(this.handleError<User>('registerUser'))
+      );
+  }
+  buyBond(tradeOrder: TradeOrder){
+        return this._http.post("/api/bonds/buybonds", tradeOrder).pipe(
+          //tap((user: User) => this.log(`added user w/ id=${user.id}`)),
+          //catchError(this.handleError<User>('registerUser'))
+        );
+  }
+
+  getBalance(accountId: number){
+       return this._http.get("/api/bonds/balance/1/")
+           .map(result => this.result = result.json());
+                         //return result;
+  }
 }

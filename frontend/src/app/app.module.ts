@@ -13,6 +13,9 @@ import { PortfolioComponent } from './portfolio/portfolio.component';
 import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
 import { BondinfoComponent } from './bondinfo/bondinfo.component';
+import { SellbondComponent } from './sellbond/sellbond.component';
+import { AllbondsComponent } from './allbonds/allbonds.component';
+import { BuybondComponent } from './buybond/buybond.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +25,10 @@ import { BondinfoComponent } from './bondinfo/bondinfo.component';
     PortfolioComponent,
     HeaderComponent,
     FooterComponent,
-    BondinfoComponent
+    BondinfoComponent,
+    SellbondComponent,
+    AllbondsComponent,
+    BuybondComponent
   ],
   imports: [
     BrowserModule,

@@ -11,6 +11,8 @@ import { DataService } from '../data.service';
 export class PortfolioComponent implements OnInit {
 
 positions: Position[];
+balance: number;
+accountId: number = 1;
 
   constructor(
       private route: ActivatedRoute,
@@ -23,6 +25,13 @@ positions: Position[];
        this.positions = p;
       });
     console.log('position');
+
+
+  this.dataService.getBalance(this.accountId)
+     .subscribe(p => {
+          console.log("----"+p);
+          this.balance = p;
+  });
   }
 
 /*  export positions: Position[] = [
