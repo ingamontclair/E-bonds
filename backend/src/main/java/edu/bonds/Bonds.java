@@ -141,13 +141,13 @@ public class Bonds {
   public Response getBondInfo(@PathParam("id") Integer id) throws Exception {
     //Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521/orcl", "bond", "1234");
     String sql = "SELECT\n" +
-      "    id,\n" +
+      "    b.id,\n" +
       "    nvl(isin,cusip) AS symbol,\n" +
       "    bond_name,\n" +
       "    country,\n" +
       "    issuer,\n" +
       "    issue_volume,\n" +
-      "    currency,\n" +
+      "    b.currency,\n" +
       "    issue_price,\n" +
       "    TO_CHAR(issue_date,'MM-DD-YYYY') AS issue_date,\n" +
       "    coupon,\n" +
@@ -156,11 +156,16 @@ public class Bonds {
       "    TO_CHAR(coupon_payment_date,'MM-DD-YYYY') AS coupon_payment_date,\n" +
       "    special_coupon_type,\n" +
       "    payments_per_year,\n" +
-      "    sub_product_type\n" +
+      "    sub_product_type,\n" +
+      "    p.price AS currentPrice\n"+
+
       "FROM\n" +
-      "    bonds\n" +
+      "    bonds b\n" +
+      "join prices p on p.bond_id = b.id\n" +
       "WHERE\n" +
-      "    id = ?";
+      "p.price_date = (select max (price_date) from prices p2 where p2.bond_id = b.id)\n" +
+      "and\n" +
+      "    b.id = ?";
     List<Bond> result = db.query(sql, new BeanPropertyRowMapper<Bond>(Bond.class), id);
     return Response.status(200).entity(new Data(result)).build();
   }
@@ -169,11 +174,6 @@ public class Bonds {
   @Path("sellbonds")
   //@Consumes(MediaType.APPLICATION_JSON)
   public Response sellBond(TradeOrder tradeOrder) {
-
-/*    String sql = "INSERT INTO users (first_name, last_name, e_mail, pass, registration_day, user_role)\n" +
-      "   VALUES (?,?,?,?,to_date(?,'MM-DD-YYYY'),?)";*/
-    //db.update(sql,user.getFirstName(),user.getLastName(),user.geteMail(),user.getPass(),user.getRegistrationDay(),user.getUserRole());
-
     List<Position> tmp = getPositions(tradeOrder.getAccountId(), tradeOrder.getBondId());
 
     if ( tmp.isEmpty()){
@@ -225,12 +225,83 @@ public class Bonds {
       ",'Bond "+position.getSymbol()+" Sold'\n" +
       ",sysdate\n" +
       ")";
-    //String result = "Order created : " + tradeOrder;
-    //System.out.println("result = " + result);
     db.update(sql,tradeOrder.getAccountId(), amount);
     String msg = "Sold";
     return Response.status(200).entity(msg).build();
   }
+
+
+  @POST
+  @Path("buybonds")
+  //@Consumes(MediaType.APPLICATION_JSON)
+  public Response buyBond(TradeOrder tradeOrder) {
+    List<Position> tmp = getPositions(tradeOrder.getAccountId(), tradeOrder.getBondId());
+
+    String sqlBalance = "select sum(amount) from cash_movements where account_id = ?";
+    Double result = db.queryForObject(sqlBalance, Double.class, tradeOrder.getAccountId());
+
+
+    if ( tmp.isEmpty()){
+      throw new RuntimeException("No positions returned");
+    }
+    Position position = tmp.get(0);
+    //check quantity
+/*    if (tradeOrder.getQuantity() > Integer.parseInt(position.getQuantity())){
+      throw new RuntimeException("Not enough bonds available");
+    }*/
+    //check the price
+    if (tradeOrder.getBidPrice() >= Double.parseDouble(position.getPrice())){
+      String message = "Bond can't be buy at this price now, saving a back order";
+      System.out.println(message);
+      return Response.status(200).entity(message).build();
+    }
+    double amount = Double.parseDouble(position.getPrice()) * tradeOrder.getQuantity();
+
+    if (amount > result) {
+      throw new RuntimeException("Not enough money available");
+    }
+    else {
+      amount = amount * (-1);
+    }
+    //insert into trades
+    String sqlTrade = "insert into TRADES(\n" +
+      "BOND_ID\n" +
+      ",ACCOUNT_ID\n" +
+      ",AMOUNT\n" +
+      ",QUANTITY\n" +
+      ",DIRECTION\n" +
+      ",BOND_PRICE\n" +
+      ",TRADE_DATE\n" +
+      ") values (\n" +
+      "?\n" +
+      ",?\n" +
+      ",?\n" +
+      ",?\n" +
+      ",'buy'\n" +
+      ",?\n" +
+      ",sysdate\n" +
+      ")";
+    db.update(sqlTrade,tradeOrder.getBondId(),tradeOrder.getAccountId(), amount, tradeOrder.getQuantity(), position.getPrice());
+    //insert into cash_movements
+
+    String sql = "insert into CASH_MOVEMENTS(\n" +
+      "CURRENCY\n" +
+      ",ACCOUNT_ID\n" +
+      ",AMOUNT\n" +
+      ",COMMENTS\n" +
+      ",CASH_MOVE_DATE\n" +
+      ") values (\n" +
+      "'USD'\n" +
+      ",?\n" +
+      ",?\n" +
+      ",'Bond "+position.getSymbol()+" Bought'\n" +
+      ",sysdate\n" +
+      ")";
+    db.update(sql,tradeOrder.getAccountId(), amount);
+    String msg = "Bought";
+    return Response.status(200).entity(msg).build();
+  }
+
 
   @Path("balance/{account_id}")
   @GET

@@ -27,7 +27,6 @@ export class SellbondComponent implements OnInit {
         this.route.params.subscribe(params => {
            this.bondId = +params['id'];
            this.tradeOrder.bondId = this.bondId;
-           this.tradeOrder.accountId = 1;
            this.tradeOrder.direction = "sell";
 
         });

@@ -1,15 +1,13 @@
 <!-- Single button -->
 <div class="btn-group">
   &nbsp;
-
-  <button type = "button" class = "btn btn-primary">Buy Bonds</button>&nbsp;&nbsp;
-  <button type = "button" class = "btn btn-primary">History</button><br>
   <a [routerLink]="['/allbonds']" class="btn btn-link">Buy Bonds</a>
+  <a [routerLink]="['/history']" class="btn btn-link">History</a>
 </div>
 <div>
-  <p>
-    &nbsp;&nbsp;Balance: {{ balance }}
-</p>
+  
+    &nbsp;&nbsp;<b>Balance: {{ balance }}</b>
+
 </div>
 
 <div>
@@ -22,7 +20,7 @@
       <th>Currency</th>
       <th>Quantity</th>
       <th>Sell</th>
-      <th>Activity</th>
+
     </tr>
     </thead>
 
@@ -33,7 +31,7 @@
       <td> {{ position.currency }} </td>
       <td> {{ position.quantity }} </td>
       <td><a href [routerLink]="['/sellbond', position.bondId]">Sell</a></td>
-      <td><a href>Activity</a></td>
+
     </tr>
     </tbody>
   </table>

@@ -6,6 +6,7 @@ import { Position } from '../model/position';
 import { TradeOrder } from '../model/tradeOrder';
 import { Location } from '@angular/common';
 
+
 @Component({
   selector: 'app-buybond',
   templateUrl: './buybond.component.html',
@@ -14,6 +15,7 @@ import { Location } from '@angular/common';
 export class BuybondComponent implements OnInit {
   bondId: number;
   positions: Position[];
+  bonds: Bond[];
   @Input() tradeOrder: TradeOrder = {} as TradeOrder;
   constructor(
             private route: ActivatedRoute,
@@ -23,22 +25,25 @@ export class BuybondComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-      this.route.params.subscribe(params => {
-         this.bondId = +params['id']
-      });
+    this.route.params.subscribe(params => {
+      this.bondId = +params['id'];
+      this.tradeOrder.bondId = this.bondId;
+      this.tradeOrder.direction = "buy";
+
+   });
         this.dataService.getBondInfo(this.bondId)
-        .subscribe(p => {
-           this.positions = p;
+        .subscribe(b => {
+           this.bonds = b;
           });
         console.log('bonds');
 
   }
-/*  goBack(): void {
-        this.location.back();
+  goBack(): void {
+    this.location.back();
   }
-  buyBond(): void {
-        this.dataService.buyBond(this.tradeOrder)
-          .subscribe(() => this.goBack());
-  }*/
+buyBond(): void {
+   this.dataService.buyBond(this.tradeOrder)
+      .subscribe(() => this.router.navigate(["portfolio"]));
+}
 
 }

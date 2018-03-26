@@ -15,4 +15,5 @@ export class Bond {
   specialCouponType: string;
   paymentsPerYear: string;
   subProductType: string;
+  currentPrice: string;
 }

@@ -17,6 +17,15 @@ public class Bond {
   String specialCouponType;
   String paymentsPerYear;
   String subProductType;
+  String currentPrice;
+
+  public String getCurrentPrice() {
+    return currentPrice;
+  }
+
+  public void setCurrentPrice(String currentPrice) {
+    this.currentPrice = currentPrice;
+  }
 
   public Integer getId() {
     return id;

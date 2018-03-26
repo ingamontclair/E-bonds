@@ -9,21 +9,21 @@
     </thead>
 
     <tbody>
-    <tr *ngFor="let position of positions">
+    <tr *ngFor="let bond of bonds">
       <td>ISIN</td>
-      <td> {{ position.symbol }} </td>
+      <td> {{ bond.symbol }} </td>
     </tr>
-    <tr *ngFor="let position of positions">
+    <tr *ngFor="let bond of bonds">
       <td>CUSIP</td>
-      <td> {{ position.symbol }} </td>
+      <td> {{ bond.symbol }} </td>
     </tr>
-    <tr *ngFor="let position of positions">
+    <tr *ngFor="let bond of bonds">
       <td>BOND_NAME</td>
-      <td> bond.bondName  </td>
+      <td> {{ bond.bondName }} </td>
     </tr>
-    <tr *ngFor="let position of positions">
+    <tr *ngFor="let bond of bonds">
       <td>CURRENT PRICE</td>
-      <td> {{ position.price }} </td>
+      <td> {{ bond.currentPrice }} </td>
     </tr>
 
     <tr>
@@ -33,7 +33,7 @@
     <tr>
       <td><div class="form-group">
         <button class="btn btn-primary" (click)="buyBond()">Buy Bonds</button>
-        <a [routerLink]="['/allbonds']" class="btn btn-link">Cancel</a>
+        <a [routerLink]="['/portfolio']" class="btn btn-link">Cancel</a>
       </div></td>
       <td></td>
     </tr>
