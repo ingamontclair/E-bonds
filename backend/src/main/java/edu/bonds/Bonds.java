@@ -312,6 +312,30 @@ public class Bonds {
     Double result = db.queryForObject(sql, Double.class, account_id);
     return Response.status(200).entity(result).build();
   }
+
+  @Path("history/{account_id}")
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getHistory(@PathParam("account_id") Integer account_id) throws Exception {
+    //Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521/orcl", "bond", "1234");
+    String sql = "select  * from (\n" +
+      "select TO_CHAR(c.cash_move_date,'MM-DD-YYYY') as moveDate, c.amount, c.comments \n" +
+      "from CASH_MOVEMENTS c where account_id = ?\n" +
+      "\n" +
+      "union all\n" +
+      "--, null as quantity, null as bond_price, null as direction, null as bond_name\n" +
+      "select TO_CHAR(t.trade_date,'MM-DD-YYYY'), t.amount, \n" +
+      "    t.direction || ' ' ||t.quantity || ' of  ' ||  b.bond_name ||' at ' || t .bond_price \n" +
+      "from trades t\n" +
+      "join\n" +
+      "bonds b  on t.bond_id = b.id\n" +
+      "where account_id = ?\n" +
+      "\n" +
+      ")\n" +
+      "order by moveDate";
+    List<History> result = db.query(sql, new BeanPropertyRowMapper<History>(History.class),account_id,account_id);
+    return Response.status(200).entity(new Data(result)).build();
+  }
   //-----------------------------------------
   // DataBase queries
   //-----------------------------------------

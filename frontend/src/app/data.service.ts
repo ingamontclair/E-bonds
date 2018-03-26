@@ -89,4 +89,10 @@ user: User;
            .map(result => this.result = result.json());
                          //return result;
   }
+
+  getHistory(accountId: number){
+    return this._http.get("/api/bonds/history/" + this.authService.currentUser().accountId)
+        .map(result => this.result = result.json().data);
+                      //return result;
+}
 }

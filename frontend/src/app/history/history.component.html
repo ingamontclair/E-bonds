@@ -1,0 +1,21 @@
+<div>
+  <table class = "table table-striped">
+
+    <thead>
+    <tr>
+      <th>CASH MOVEMENT DATE</th>
+      <th>AMOUNT</th>
+      <th>COMMENTS</th>
+
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr *ngFor="let history of histories">
+      <td> {{ history.moveDate }} </td>
+      <td> {{ history.amount }} </td>
+      <td> {{ history.comments }} </td>
+    </tr>
+    </tbody>
+  </table>
+</div>

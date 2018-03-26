@@ -1,4 +1,5 @@
 edu/bonds/model/Trade.class
+edu/bonds/model/History.class
 edu/bonds/model/Cash.class
 edu/bonds/model/User.class
 edu/bonds/model/Bond.class

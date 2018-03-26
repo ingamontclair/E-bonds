@@ -18,6 +18,7 @@ import { AllbondsComponent } from './allbonds/allbonds.component';
 import { BuybondComponent } from './buybond/buybond.component';
 import { AuthenticationService } from './authentication.service';
 import { AuthGuard } from './auth.guard';
+import { HistoryComponent } from './history/history.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { AuthGuard } from './auth.guard';
     BondinfoComponent,
     SellbondComponent,
     AllbondsComponent,
-    BuybondComponent
+    BuybondComponent,
+    HistoryComponent
   ],
   imports: [
     BrowserModule,
