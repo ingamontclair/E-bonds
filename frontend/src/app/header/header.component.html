@@ -1,5 +1,8 @@
 <div class="page-header" class="p-3 mb-2 bg-info text-white">
   <h2>E-Bonds <small>Subtext for header</small></h2>
-  <p *ngIf="currentUser">Welcome, {{ currentUser.firstName }} !</p>
-  <a *ngIf="currentUser" href="" (click)="logout()">Logout</a>
+  <H5 *ngIf="currentUser">Welcome, {{ currentUser.firstName }} !</H5>
+  <a *ngIf="currentUser" href="" (click)="logout()" class="btn btn-link">Logout</a><br>
+  <a [routerLink]="['/addmoney']" class="btn btn-link">Make a deposit</a>
+  <a [routerLink]="['/withdraw']" class="btn btn-link">Withdraw money</a>
+
 </div>

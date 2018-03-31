@@ -100,8 +100,22 @@ public class Users {
     String sql = "INSERT INTO users (first_name, last_name, e_mail, pass, registration_day, user_role)\n" +
       "   VALUES (?,?,?,?,to_date(?,'MM-DD-YYYY'),?)";
     db.update(sql,user.getFirstName(),user.getLastName(),user.geteMail(),user.getPass(),user.getRegistrationDay(),user.getUserRole());
-    String result = "User created : " + user;
-    return Response.status(200).entity(result).build();
+
+// get an ID for a new created user
+    sql = "SELECT\n" +
+      "    u.id\n" +
+      "FROM\n" +
+      "    users u\n" +
+      "WHERE\n" +
+      "    e_mail = '"+ user.geteMail() +"'\n" +
+      "    AND   pass = '"+ user.getPass() +"'";
+    List <User> newUser = db.query(sql,new BeanPropertyRowMapper<User>(User.class));
+    System.out.println("user id "+ newUser.get(0).getId());
+    sql = "INSERT INTO accounts (user_id) VALUES (?)";
+    db.update(sql,newUser.get(0).getId());
+    String res = "User created : " + user;
+    System.out.println("res = " + user.getId());
+    return Response.status(200).entity(res).build();
 
   }
 

@@ -19,6 +19,8 @@ import { BuybondComponent } from './buybond/buybond.component';
 import { AuthenticationService } from './authentication.service';
 import { AuthGuard } from './auth.guard';
 import { HistoryComponent } from './history/history.component';
+import { AddmoneyComponent } from './addmoney/addmoney.component';
+import { WithdrawComponent } from './withdraw/withdraw.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +34,9 @@ import { HistoryComponent } from './history/history.component';
     SellbondComponent,
     AllbondsComponent,
     BuybondComponent,
-    HistoryComponent
+    HistoryComponent,
+    AddmoneyComponent,
+    WithdrawComponent
   ],
   imports: [
     BrowserModule,

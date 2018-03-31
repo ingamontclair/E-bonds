@@ -30,10 +30,6 @@ user: User[];
   }
 
   get currentUser() : User {
-    this.user = JSON.parse(localStorage.getItem("currentUser"));
-    if ((this.user !== null) && (this.user.length > 0)){
-      return this.user[0];   
-    }
-    return null;
+    return this.authenticationService.currentUser();
   }
 }

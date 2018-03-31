@@ -10,12 +10,15 @@ import { Position } from './model/position';
 import { Bond } from './model/bond';
 import { TradeOrder } from './model/tradeOrder';
 import { AuthenticationService } from './authentication.service';
+import { Cash } from './model/cash';
 
 @Injectable()
 export class DataService {
+
 accountId: number;
 user: User;
-  result: Response;
+result: Response;
+cash: Cash;
 
   constructor(
     private _http: Http,
@@ -39,10 +42,7 @@ user: User;
             this.result = result.json().data);
                  //return result;
    }
-  
-  
-  
-  
+
    getPortfolio(){
           this.user = this.authService.currentUser();
           this.accountId = this.user.accountId;
@@ -70,14 +70,31 @@ user: User;
   }
 
   sellBond(tradeOrder: TradeOrder){
-    tradeOrder.accountId = this.authService.currentUser().accountId;  
+    tradeOrder.accountId = this.authService.currentUser().accountId;
       return this._http.post("/api/bonds/sellbonds", tradeOrder).pipe(
         //tap((user: User) => this.log(`added user w/ id=${user.id}`)),
         //catchError(this.handleError<User>('registerUser'))
       );
   }
+
+  addMoney(cash: Cash){
+    cash.accountId = this.authService.currentUser().accountId;
+      return this._http.post("/api/bonds/addmoney", cash).pipe(
+        //tap((user: User) => this.log(`added user w/ id=${user.id}`)),
+        //catchError(this.handleError<User>('registerUser'))
+      );
+  }
+
+  withdraw(cash: Cash){
+      cash.accountId = this.authService.currentUser().accountId;
+        return this._http.post("/api/bonds/withdraw", cash).pipe(
+          //tap((user: User) => this.log(`added user w/ id=${user.id}`)),
+          //catchError(this.handleError<User>('registerUser'))
+        );
+  }
+
   buyBond(tradeOrder: TradeOrder){
-      tradeOrder.accountId = this.authService.currentUser().accountId;  
+      tradeOrder.accountId = this.authService.currentUser().accountId;
         return this._http.post("/api/bonds/buybonds", tradeOrder).pipe(
           //tap((user: User) => this.log(`added user w/ id=${user.id}`)),
           //catchError(this.handleError<User>('registerUser'))

@@ -319,12 +319,12 @@ public class Bonds {
   public Response getHistory(@PathParam("account_id") Integer account_id) throws Exception {
     //Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521/orcl", "bond", "1234");
     String sql = "select  * from (\n" +
-      "select TO_CHAR(c.cash_move_date,'MM-DD-YYYY') as moveDate, c.amount, c.comments \n" +
+      "select c.cash_move_date, TO_CHAR(c.cash_move_date,'MM-DD-YYYY') as moveDate, c.amount, c.comments \n" +
       "from CASH_MOVEMENTS c where account_id = ?\n" +
       "\n" +
       "union all\n" +
       "--, null as quantity, null as bond_price, null as direction, null as bond_name\n" +
-      "select TO_CHAR(t.trade_date,'MM-DD-YYYY'), t.amount, \n" +
+      "select t.trade_date, TO_CHAR(t.trade_date,'MM-DD-YYYY'), t.amount, \n" +
       "    t.direction || ' ' ||t.quantity || ' of  ' ||  b.bond_name ||' at ' || t .bond_price \n" +
       "from trades t\n" +
       "join\n" +
@@ -332,10 +332,71 @@ public class Bonds {
       "where account_id = ?\n" +
       "\n" +
       ")\n" +
-      "order by moveDate";
+      "order by cash_move_date desc";
     List<History> result = db.query(sql, new BeanPropertyRowMapper<History>(History.class),account_id,account_id);
     return Response.status(200).entity(new Data(result)).build();
   }
+
+  @POST
+  @Path("addmoney")
+  //@Consumes(MediaType.APPLICATION_JSON)
+  public Response addMoney(Cash cash) {
+    //List<Position> tmp = getPositions(cash.getAccountId(), tradeOrder.getBondId());
+    double amount = Double.parseDouble(String.valueOf(cash.getAmount()));
+    //insert into cash_movements
+    String sql = "insert into CASH_MOVEMENTS(\n" +
+      "CURRENCY\n" +
+      ",ACCOUNT_ID\n" +
+      ",AMOUNT\n" +
+      ",COMMENTS\n" +
+      ",CASH_MOVE_DATE\n" +
+      ") values (\n" +
+      "'USD'\n" +
+      ",?\n" +
+      ",?\n" +
+      ",'Money deposit'\n" +
+      ",sysdate\n" +
+      ")";
+    db.update(sql, cash.getAccountId(), amount);
+    String msg = "Sold";
+    return Response.status(200).entity(msg).build();
+  }
+
+  @POST
+  @Path("withdraw")
+  //@Consumes(MediaType.APPLICATION_JSON)
+  public Response withdraw(Cash cash) {
+
+    String sqlBalance = "select sum(amount) from cash_movements where account_id = ?";
+    Double result = db.queryForObject(sqlBalance, Double.class, cash.getAccountId());
+    //List<Position> tmp = getPositions(cash.getAccountId(), tradeOrder.getBondId());
+    double amount = Double.parseDouble(String.valueOf(cash.getAmount()));
+
+    if (result < amount) {
+      throw new RuntimeException("Not enough money available");
+    }
+    else {
+      amount = amount * (-1);
+    }
+    //insert into cash_movements
+    String sql = "insert into CASH_MOVEMENTS(\n" +
+      "CURRENCY\n" +
+      ",ACCOUNT_ID\n" +
+      ",AMOUNT\n" +
+      ",COMMENTS\n" +
+      ",CASH_MOVE_DATE\n" +
+      ") values (\n" +
+      "'USD'\n" +
+      ",?\n" +
+      ",?\n" +
+      ",'Money withdrawal'\n" +
+      ",sysdate\n" +
+      ")";
+    db.update(sql, cash.getAccountId(), amount);
+    String msg = "Sold";
+    return Response.status(200).entity(msg).build();
+  }
+
   //-----------------------------------------
   // DataBase queries
   //-----------------------------------------

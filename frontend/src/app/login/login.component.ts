@@ -1,5 +1,4 @@
 import { Component, OnInit, Input  } from '@angular/core';
-
 import { Router, ActivatedRoute } from '@angular/router';
 import { User } from '../model/user';
 import { AuthenticationService } from '../authentication.service'
@@ -32,9 +31,6 @@ export class LoginComponent implements OnInit {
         // get return url from route parameters or default to '/'
         this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
     }
-      goPortfolio(): void {
-        this.location.go("./portfolio");
-      }
 
       loginUser(): void {
           this.authenticationService.login(this.user)

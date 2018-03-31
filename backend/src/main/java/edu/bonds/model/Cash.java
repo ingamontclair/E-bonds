@@ -2,9 +2,9 @@ package edu.bonds.model;
 
 public class Cash {
   int id;
-  int account_id;
+  int accountId;
   String cash_move_date;
-  int amount;
+  double amount;
   String currency;
   String comments;
 
@@ -16,12 +16,12 @@ public class Cash {
     this.id = id;
   }
 
-  public int getAccount_id() {
-    return account_id;
+  public int getAccountId() {
+    return accountId;
   }
 
-  public void setAccount_id(int account_id) {
-    this.account_id = account_id;
+  public void setAccountId(int accountId) {
+    this.accountId = accountId;
   }
 
   public String getCash_move_date() {
@@ -32,11 +32,11 @@ public class Cash {
     this.cash_move_date = cash_move_date;
   }
 
-  public int getAmount() {
+  public double getAmount() {
     return amount;
   }
 
-  public void setAmount(int amount) {
+  public void setAmount(double amount) {
     this.amount = amount;
   }
 

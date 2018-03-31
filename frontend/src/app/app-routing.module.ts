@@ -9,7 +9,9 @@ import { SellbondComponent }   from './sellbond/sellbond.component';
 import { AllbondsComponent } from './allbonds/allbonds.component';
 import { BuybondComponent } from './buybond/buybond.component';
 import { AuthGuard } from './auth.guard';
-import { HistoryComponent } from './history/history.component'
+import { HistoryComponent } from './history/history.component';
+import { AddmoneyComponent } from './addmoney/addmoney.component';
+import { WithdrawComponent } from './withdraw/withdraw.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/portfolio', canActivate: [AuthGuard], pathMatch: 'full',},
@@ -22,6 +24,8 @@ const routes: Routes = [
   { path: 'allbonds', component: AllbondsComponent, canActivate: [AuthGuard] },
   { path: 'buybond/:id', component: BuybondComponent, canActivate: [AuthGuard] },
   { path: 'history', component: HistoryComponent, canActivate: [AuthGuard] },
+  { path: 'addmoney', component: AddmoneyComponent, canActivate: [AuthGuard] },
+  { path: 'withdraw', component: WithdrawComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 
 ];

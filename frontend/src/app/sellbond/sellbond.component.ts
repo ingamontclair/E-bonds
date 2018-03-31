@@ -39,9 +39,10 @@ export class SellbondComponent implements OnInit {
 
 
   }
-    goBack(): void {
+  goBack(): void {
       this.location.back();
-    }
+  }
+  
   sellBond(): void {
      this.dataService.sellBond(this.tradeOrder)
         .subscribe(() => this.goBack());
