@@ -71,10 +71,8 @@ public class Users {
   @GET
   @Produces(MediaType.TEXT_PLAIN)
   public Response deleteUser(@PathParam("id") Integer id) throws Exception{
-    //Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521/orcl", "bond", "1234");
     String sql = "delete from users where id=" + id;
     db.execute(sql);
-    //c.close();
     System.out.println("Customer deleted");
     return Response.status(200).build();
   }

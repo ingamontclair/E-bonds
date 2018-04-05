@@ -25,6 +25,7 @@ public class Bonds {
   @Produces(MediaType.TEXT_PLAIN)
   public String bonds() throws Exception{
     Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521/orcl", "bond", "1234");
+    //Select all information about all bonds
     String sql = "SELECT\n" +
       "    id,\n" +
       "    isin,\n" +
@@ -86,7 +87,7 @@ public class Bonds {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response getPositions(@PathParam("account_id") Integer account_id) throws Exception {
-    //Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521/orcl", "bond", "1234");
+    // Select all user portfolio by ID
     String sql = "select b.id as bondId, nvl (b.isin, b.cusip) as symbol, b.currency, p.price, sum(t.quantity*\n" +
       "case when t.direction = 'sell' then -1\n" +
       "else 1\n" +
@@ -124,13 +125,26 @@ public class Bonds {
     return Response.status(200).entity(new Data(result)).build();
   }
 
+  @Path("bondsforsell")
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getBondsForSell() throws Exception {
+    //Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521/orcl", "bond", "1234");
+    String sql = "select b.id as bondId, nvl (b.isin, b.cusip) as symbol, b.currency, p.price " +
+      "from  bonds b \n" +
+      "join prices p on p.bond_id = b.id\n" +
+      "where  \n" +
+      "p.price_date = (select max (price_date) from prices p2 where p2.bond_id = b.id)";
+    List<Position> result = db.query(sql, new BeanPropertyRowMapper<Position>(Position.class));
+    return Response.status(200).entity(new Data(result)).build();
+  }
+
   @Path("positions/{account_id}/{b_id}")
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response getBondById(@PathParam("account_id") Integer account_id, @PathParam("b_id") Integer b_id) throws Exception {
     //Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521/orcl", "bond", "1234");
     System.out.println("account_id = " + account_id);
-
     List<Position> result = getPositions(account_id, b_id);
     return Response.status(200).entity(new Data(result)).build();
   }
@@ -139,7 +153,12 @@ public class Bonds {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response getBondInfo(@PathParam("id") Integer id) throws Exception {
-    //Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521/orcl", "bond", "1234");
+    // Select information about one bond by ID
+    List<Bond> result = getBondById(id);
+    return Response.status(200).entity(new Data(result)).build();
+  }
+
+  private List<Bond> getBondById(@PathParam("id") Integer id) {
     String sql = "SELECT\n" +
       "    b.id,\n" +
       "    nvl(isin,cusip) AS symbol,\n" +
@@ -166,9 +185,9 @@ public class Bonds {
       "p.price_date = (select max (price_date) from prices p2 where p2.bond_id = b.id)\n" +
       "and\n" +
       "    b.id = ?";
-    List<Bond> result = db.query(sql, new BeanPropertyRowMapper<Bond>(Bond.class), id);
-    return Response.status(200).entity(new Data(result)).build();
+    return db.query(sql, new BeanPropertyRowMapper<Bond>(Bond.class), id);
   }
+
 
   @POST
   @Path("sellbonds")
@@ -210,8 +229,8 @@ public class Bonds {
       ",sysdate\n" +
       ")";
     db.update(sqlTrade,tradeOrder.getBondId(),tradeOrder.getAccountId(), amount, tradeOrder.getQuantity(), position.getPrice());
-    //insert into cash_movements
 
+    //insert into cash_movements
     String sql = "insert into CASH_MOVEMENTS(\n" +
       "CURRENCY\n" +
       ",ACCOUNT_ID\n" +
@@ -235,27 +254,22 @@ public class Bonds {
   @Path("buybonds")
   //@Consumes(MediaType.APPLICATION_JSON)
   public Response buyBond(TradeOrder tradeOrder) {
-    List<Position> tmp = getPositions(tradeOrder.getAccountId(), tradeOrder.getBondId());
+    List<Bond> tmp = getBondById(tradeOrder.getBondId());
 
     String sqlBalance = "select sum(amount) from cash_movements where account_id = ?";
     Double result = db.queryForObject(sqlBalance, Double.class, tradeOrder.getAccountId());
-
-
     if ( tmp.isEmpty()){
       throw new RuntimeException("No positions returned");
     }
-    Position position = tmp.get(0);
-    //check quantity
-/*    if (tradeOrder.getQuantity() > Integer.parseInt(position.getQuantity())){
-      throw new RuntimeException("Not enough bonds available");
-    }*/
+    Bond position = tmp.get(0);
     //check the price
-    if (tradeOrder.getBidPrice() >= Double.parseDouble(position.getPrice())){
+    if (tradeOrder.getBidPrice() >= Double.parseDouble(position.getCurrentPrice())){
       String message = "Bond can't be buy at this price now, saving a back order";
       System.out.println(message);
       return Response.status(200).entity(message).build();
     }
-    double amount = Double.parseDouble(position.getPrice()) * tradeOrder.getQuantity();
+    double amount = Double.parseDouble(position.getCurrentPrice()) * tradeOrder.getQuantity();
+    //double amount = tradeOrder.getBidPrice() * tradeOrder.getQuantity();
 
     if (amount > result) {
       throw new RuntimeException("Not enough money available");
@@ -281,9 +295,8 @@ public class Bonds {
       ",?\n" +
       ",sysdate\n" +
       ")";
-    db.update(sqlTrade,tradeOrder.getBondId(),tradeOrder.getAccountId(), amount, tradeOrder.getQuantity(), position.getPrice());
+    db.update(sqlTrade,tradeOrder.getBondId(),tradeOrder.getAccountId(), amount, tradeOrder.getQuantity(), position.getCurrentPrice());
     //insert into cash_movements
-
     String sql = "insert into CASH_MOVEMENTS(\n" +
       "CURRENCY\n" +
       ",ACCOUNT_ID\n" +
@@ -307,7 +320,7 @@ public class Bonds {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response getBalance(@PathParam("account_id") Integer account_id) throws Exception {
-    //Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521/orcl", "bond", "1234");
+    // Balance calculation
     String sql = "select sum(amount) from cash_movements where account_id = ?";
     Double result = db.queryForObject(sql, Double.class, account_id);
     return Response.status(200).entity(result).build();
@@ -317,7 +330,7 @@ public class Bonds {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response getHistory(@PathParam("account_id") Integer account_id) throws Exception {
-    //Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521/orcl", "bond", "1234");
+    // All cash movements information for logged in user
     String sql = "select  * from (\n" +
       "select c.cash_move_date, TO_CHAR(c.cash_move_date,'MM-DD-YYYY') as moveDate, c.amount, c.comments \n" +
       "from CASH_MOVEMENTS c where account_id = ?\n" +
@@ -341,7 +354,6 @@ public class Bonds {
   @Path("addmoney")
   //@Consumes(MediaType.APPLICATION_JSON)
   public Response addMoney(Cash cash) {
-    //List<Position> tmp = getPositions(cash.getAccountId(), tradeOrder.getBondId());
     double amount = Double.parseDouble(String.valueOf(cash.getAmount()));
     //insert into cash_movements
     String sql = "insert into CASH_MOVEMENTS(\n" +
@@ -369,7 +381,6 @@ public class Bonds {
 
     String sqlBalance = "select sum(amount) from cash_movements where account_id = ?";
     Double result = db.queryForObject(sqlBalance, Double.class, cash.getAccountId());
-    //List<Position> tmp = getPositions(cash.getAccountId(), tradeOrder.getBondId());
     double amount = Double.parseDouble(String.valueOf(cash.getAmount()));
 
     if (result < amount) {

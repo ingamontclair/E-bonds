@@ -22,7 +22,7 @@ accountId: number  = 1;
 
   ngOnInit() {
 
-    this.dataService.getAllBonds()
+    this.dataService.getBondsForSell()
     .subscribe(p => {
        this.positions = p;
       });

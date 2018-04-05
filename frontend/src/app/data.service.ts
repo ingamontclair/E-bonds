@@ -32,15 +32,12 @@ cash: Cash;
 
   registerUser(user: User){
     return this._http.post("/api/users/register", user).pipe(
-      //tap((user: User) => this.log(`added user w/ id=${user.id}`)),
-      //catchError(this.handleError<User>('registerUser'))
     );
   }
   loginUser(user: User){
          return this._http.get("/api/users/"+user.eMail+"/"+user.pass)
           .map(result =>
             this.result = result.json().data);
-                 //return result;
    }
 
    getPortfolio(){
@@ -48,68 +45,60 @@ cash: Cash;
           this.accountId = this.user.accountId;
            return this._http.get("/api/bonds/positions/"+ this.accountId)
             .map(result => this.result = result.json().data);
-                   //return result;
   }
 
   getAllBonds(){
              return this._http.get("/api/bonds/positions")
               .map(result => this.result = result.json().data);
-                     //return result;
   }
+
+   getBondsForSell(){
+               return this._http.get("/api/bonds/bondsforsell")
+                .map(result => this.result = result.json().data);
+   }
+
 
   getBondInfo(bondId: number){
              return this._http.get("/api/bonds/"+bondId)
               .map(result => this.result = result.json().data);
-                     //return result;
   }
 
   getBondById(bondId: number){
              return this._http.get("/api/bonds/positions/"+ this.authService.currentUser().accountId + "/"+bondId)
               .map(result => this.result = result.json().data);
-                       //return result;
   }
 
   sellBond(tradeOrder: TradeOrder){
     tradeOrder.accountId = this.authService.currentUser().accountId;
       return this._http.post("/api/bonds/sellbonds", tradeOrder).pipe(
-        //tap((user: User) => this.log(`added user w/ id=${user.id}`)),
-        //catchError(this.handleError<User>('registerUser'))
       );
   }
 
   addMoney(cash: Cash){
     cash.accountId = this.authService.currentUser().accountId;
       return this._http.post("/api/bonds/addmoney", cash).pipe(
-        //tap((user: User) => this.log(`added user w/ id=${user.id}`)),
-        //catchError(this.handleError<User>('registerUser'))
       );
   }
 
   withdraw(cash: Cash){
       cash.accountId = this.authService.currentUser().accountId;
         return this._http.post("/api/bonds/withdraw", cash).pipe(
-          //tap((user: User) => this.log(`added user w/ id=${user.id}`)),
-          //catchError(this.handleError<User>('registerUser'))
         );
   }
 
   buyBond(tradeOrder: TradeOrder){
       tradeOrder.accountId = this.authService.currentUser().accountId;
         return this._http.post("/api/bonds/buybonds", tradeOrder).pipe(
-          //tap((user: User) => this.log(`added user w/ id=${user.id}`)),
-          //catchError(this.handleError<User>('registerUser'))
         );
   }
 
   getBalance(accountId: number){
        return this._http.get("/api/bonds/balance/" + this.authService.currentUser().accountId)
            .map(result => this.result = result.json());
-                         //return result;
   }
 
   getHistory(accountId: number){
     return this._http.get("/api/bonds/history/" + this.authService.currentUser().accountId)
         .map(result => this.result = result.json().data);
-                      //return result;
-}
+  }
 }
